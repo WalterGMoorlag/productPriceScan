@@ -295,6 +295,16 @@
     </div>
   </div>
 
+  <!-- Ingreso manual de código -->
+  <div class="search-row" id="barcodeRow" style="margin-bottom:16px;">
+    <input type="text" id="barcodeInput" placeholder="Ingresá el código de barras..." inputmode="numeric" pattern="[0-9]*"
+           onkeydown="if(event.key==='Enter') lookupManualBarcode()">
+    <button class="btn btn-primary" onclick="lookupManualBarcode()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="7" width="18" height="10" rx="1"/><line x1="7" y1="11" x2="7" y2="13"/><line x1="10" y1="11" x2="10" y2="13"/><line x1="13" y1="11" x2="13" y2="13"/><line x1="16" y1="11" x2="16" y2="13"/></svg>
+      Buscar
+    </button>
+  </div>
+
   <!-- Loading -->
   <div id="loading">
     <div class="spinner"></div>
@@ -427,6 +437,7 @@
   function resetToScan() {
     document.getElementById('resultCard').style.display = 'none';
     document.getElementById('searchRow').style.display = 'flex';
+    document.getElementById('barcodeRow').style.display = 'flex';
     startScanner();
   }
 
@@ -437,6 +448,7 @@
     showToast('¡Código detectado!', 'success');
 
     document.getElementById('searchRow').style.display = 'none';
+    document.getElementById('barcodeRow').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
 
     // Buscar producto — fallback chain
@@ -541,6 +553,14 @@
     }
 
     document.getElementById('resultCard').style.display = 'block';
+  }
+
+  // ─── Lookup manual de código de barras ───
+  function lookupManualBarcode() {
+    const code = document.getElementById('barcodeInput').value.trim();
+    if (!code) return;
+    document.getElementById('barcodeInput').value = '';
+    onBarcodeDetected(code);
   }
 
   // ─── Búsqueda manual ───

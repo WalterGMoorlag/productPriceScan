@@ -21,10 +21,10 @@
       --text: #f1f5f9;
       --text-muted: #94a3b8;
       --green: #22c55e;
-      --green-dim: #16a34a;
       --blue: #3b82f6;
       --orange: #f97316;
       --red: #ef4444;
+      --yellow: #eab308;
     }
 
     html, body {
@@ -47,13 +47,10 @@
       top: 0;
       z-index: 100;
     }
-
-    .logo {
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
+    .logo { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
     .logo span { color: var(--green); }
+
+    .header-right { display: flex; align-items: center; gap: 10px; }
 
     select#siteSelect {
       background: var(--surface2);
@@ -66,7 +63,56 @@
       cursor: pointer;
     }
 
-    /* ─── MAIN ─── */
+    .auth-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .auth-badge.connected { background: #1a3a2a; color: var(--green); }
+    .auth-badge.disconnected { background: #3a1a1a; color: var(--red); }
+    .auth-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .auth-badge.connected .auth-dot { background: var(--green); }
+    .auth-badge.disconnected .auth-dot { background: var(--red); }
+
+    /* ─── LOGIN SCREEN ─── */
+    #loginScreen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 32px 24px;
+      text-align: center;
+      gap: 20px;
+    }
+    .login-icon { font-size: 64px; }
+    .login-title { font-size: 22px; font-weight: 700; }
+    .login-subtitle { font-size: 14px; color: var(--text-muted); max-width: 280px; line-height: 1.5; }
+    .btn-ml {
+      background: #ffe600;
+      color: #333;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn-ml:active { transform: scale(0.97); opacity: 0.85; }
+    .login-note { font-size: 12px; color: var(--text-muted); }
+
+    /* ─── MAIN APP ─── */
+    #appScreen { display: none; }
     main { padding: 16px; max-width: 600px; margin: 0 auto; }
 
     /* ─── SCANNER CARD ─── */
@@ -83,110 +129,52 @@
       width: 100%;
       aspect-ratio: 4/3;
       background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
-    #scanner-container > div {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    /* Override html5-qrcode styles */
-    #reader {
-      border: none !important;
-      width: 100% !important;
-    }
-    #reader video {
-      border-radius: 0 !important;
-      object-fit: cover;
-      width: 100% !important;
-      height: 100% !important;
-    }
+    #reader { border: none !important; width: 100% !important; height: 100% !important; }
+    #reader video { border-radius: 0 !important; object-fit: cover; width: 100% !important; height: 100% !important; }
     #reader img { display: none; }
-    #reader__dashboard_section_swaplink { display: none !important; }
     #reader__dashboard { display: none !important; }
     #reader__status_span { display: none !important; }
     #reader__header_message { display: none !important; }
+    #reader__dashboard_section_swaplink { display: none !important; }
 
     .scan-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; inset: 0; pointer-events: none;
+      display: none; align-items: center; justify-content: center;
     }
-
-    .scan-frame {
-      width: 65%;
-      aspect-ratio: 3/1.4;
-      position: relative;
-    }
-
+    .scan-frame { width: 65%; aspect-ratio: 3/1.4; position: relative; }
     .scan-frame::before, .scan-frame::after,
     .scan-frame .corner-bl, .scan-frame .corner-br {
-      content: '';
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-color: var(--green);
-      border-style: solid;
+      content: ''; position: absolute; width: 24px; height: 24px;
+      border-color: var(--green); border-style: solid;
     }
-    .scan-frame::before  { top: 0; left: 0; border-width: 3px 0 0 3px; border-radius: 4px 0 0 0; }
-    .scan-frame::after   { top: 0; right: 0; border-width: 3px 3px 0 0; border-radius: 0 4px 0 0; }
-    .scan-frame .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; border-radius: 0 0 0 4px; }
-    .scan-frame .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; border-radius: 0 0 4px 0; }
-
+    .scan-frame::before  { top:0; left:0; border-width:3px 0 0 3px; border-radius:4px 0 0 0; }
+    .scan-frame::after   { top:0; right:0; border-width:3px 3px 0 0; border-radius:0 4px 0 0; }
+    .scan-frame .corner-bl { bottom:0; left:0; border-width:0 0 3px 3px; border-radius:0 0 0 4px; }
+    .scan-frame .corner-br { bottom:0; right:0; border-width:0 3px 3px 0; border-radius:0 0 4px 0; }
     .scan-line {
-      position: absolute;
-      left: 6px;
-      right: 6px;
-      height: 2px;
+      position: absolute; left:6px; right:6px; height:2px;
       background: linear-gradient(90deg, transparent, var(--green), transparent);
       animation: scanAnim 1.8s ease-in-out infinite;
     }
-
-    @keyframes scanAnim {
-      0%   { top: 6px; opacity: 1; }
-      90%  { top: calc(100% - 6px); opacity: 1; }
-      100% { top: calc(100% - 6px); opacity: 0; }
-    }
+    @keyframes scanAnim { 0%{top:6px;opacity:1} 90%{top:calc(100% - 6px);opacity:1} 100%{top:calc(100% - 6px);opacity:0} }
 
     .scanner-idle {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      background: var(--surface);
-      cursor: pointer;
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 12px;
+      background: var(--surface); cursor: pointer;
     }
-
     .scanner-idle svg { width: 48px; height: 48px; color: var(--text-muted); }
     .scanner-idle p { color: var(--text-muted); font-size: 14px; }
 
-    .scanner-controls {
-      padding: 12px 16px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
+    .scanner-controls { padding: 12px 16px; display: flex; gap: 10px; align-items: center; }
 
     /* ─── BUTTONS ─── */
     .btn {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 18px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+      border: none; border-radius: 10px; padding: 10px 18px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
       transition: opacity 0.15s, transform 0.1s;
     }
     .btn:active { transform: scale(0.97); opacity: 0.85; }
@@ -196,286 +184,119 @@
     .btn-sm { padding: 7px 12px; font-size: 13px; }
 
     /* ─── BARCODE INFO ─── */
-    #barcodeInfo {
-      display: none;
-      padding: 14px 16px;
-      border-top: 1px solid var(--border);
-    }
-
+    #barcodeInfo { display: none; padding: 14px 16px; border-top: 1px solid var(--border); }
     .barcode-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 13px;
-      margin-bottom: 10px;
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px; font-size: 13px; margin-bottom: 10px;
     }
     .barcode-tag .label { color: var(--text-muted); }
     .barcode-tag .code { font-family: monospace; font-weight: 600; color: var(--green); }
 
-    .product-preview {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
+    .product-preview { display: flex; align-items: center; gap: 12px; }
     .product-preview img {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
-      border-radius: 8px;
-      background: #fff;
-      padding: 4px;
-      flex-shrink: 0;
+      width: 52px; height: 52px; object-fit: contain;
+      border-radius: 8px; background: #fff; padding: 4px; flex-shrink: 0;
     }
-
     .product-preview-info { flex: 1; min-width: 0; }
     .product-preview-name {
-      font-size: 15px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 15px; font-weight: 600;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .product-preview-brand { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
     /* ─── MANUAL SEARCH ─── */
     .search-row {
-      display: flex;
-      gap: 8px;
-      background: var(--surface);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      padding: 12px;
-      margin-bottom: 16px;
+      display: flex; gap: 8px; background: var(--surface);
+      border-radius: 16px; border: 1px solid var(--border);
+      padding: 12px; margin-bottom: 16px;
     }
-
     .search-row input {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--text);
-      font-size: 15px;
-      outline: none;
+      flex: 1; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 15px; outline: none;
     }
     .search-row input:focus { border-color: var(--green); }
     .search-row input::placeholder { color: var(--text-muted); }
 
     /* ─── STATUS ─── */
-    #status {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-
+    #status { display: none; text-align: center; padding: 20px; color: var(--text-muted); font-size: 14px; }
     .spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid var(--border);
-      border-top-color: var(--green);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto 10px;
+      width: 28px; height: 28px; border: 3px solid var(--border);
+      border-top-color: var(--green); border-radius: 50%;
+      animation: spin 0.7s linear infinite; margin: 0 auto 10px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ─── RESULTS ─── */
     #results { display: none; }
-
-    .results-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .results-title {
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .results-count {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .results-title { font-size: 16px; font-weight: 700; }
+    .results-count { font-size: 13px; color: var(--text-muted); }
     .results-query {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
+      font-size: 13px; color: var(--text-muted); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
     }
-
     .query-chip {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-size: 12px;
-      color: var(--blue);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 10px; font-size: 12px; color: var(--blue);
     }
-
-    /* Filter bar */
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .filter-chip {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: var(--text-muted);
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 5px 12px; font-size: 12px;
+      cursor: pointer; transition: all 0.15s; color: var(--text-muted);
     }
-    .filter-chip.active {
-      background: var(--green);
-      border-color: var(--green);
-      color: #000;
-      font-weight: 600;
-    }
+    .filter-chip.active { background: var(--green); border-color: var(--green); color: #000; font-weight: 600; }
 
-    /* Product cards */
     .product-list { display: flex; flex-direction: column; gap: 10px; }
-
     .product-card {
-      display: flex;
-      gap: 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.15s, transform 0.1s;
-      position: relative;
-      overflow: hidden;
+      display: flex; gap: 12px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+      text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.1s;
+      position: relative; overflow: hidden;
     }
     .product-card:active { transform: scale(0.98); }
     .product-card:hover { border-color: var(--green); }
-
-    .product-card.best-price {
-      border-color: var(--green);
-      background: linear-gradient(135deg, #1e293b 0%, #0f2a1a 100%);
-    }
+    .product-card.best-price { border-color: var(--green); background: linear-gradient(135deg, #1e293b 0%, #0f2a1a 100%); }
 
     .best-badge {
-      position: absolute;
-      top: 0;
-      right: 0;
-      background: var(--green);
-      color: #000;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 0 12px 0 8px;
-      letter-spacing: 0.5px;
+      position: absolute; top: 0; right: 0; background: var(--green);
+      color: #000; font-size: 10px; font-weight: 700; padding: 3px 8px;
+      border-radius: 0 12px 0 8px; letter-spacing: 0.5px;
     }
-
     .card-img {
-      width: 72px;
-      height: 72px;
-      object-fit: contain;
-      border-radius: 8px;
-      background: #fff;
-      padding: 4px;
-      flex-shrink: 0;
+      width: 72px; height: 72px; object-fit: contain;
+      border-radius: 8px; background: #fff; padding: 4px; flex-shrink: 0;
     }
-
     .card-img-placeholder {
-      width: 72px;
-      height: 72px;
-      border-radius: 8px;
-      background: var(--surface2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      color: var(--border);
+      width: 72px; height: 72px; border-radius: 8px; background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; color: var(--border);
     }
-
     .card-body { flex: 1; min-width: 0; }
-
     .card-title {
-      font-size: 13px;
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      margin-bottom: 8px;
+      font-size: 13px; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 8px;
     }
-
-    .card-price {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--green);
-      line-height: 1;
-    }
-
-    .card-price-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 3px;
-    }
-
-    .card-meta {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
+    .card-price { font-size: 20px; font-weight: 700; color: var(--green); line-height: 1; }
+    .card-price-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+    .card-meta { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; letter-spacing: 0.3px; }
     .badge-new { background: #1a3a5c; color: var(--blue); }
     .badge-used { background: #3a2a1a; color: var(--orange); }
     .badge-free-ship { background: #1a3a2a; color: var(--green); }
 
-    /* ─── EMPTY STATE ─── */
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-    }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
     .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
-    .empty-state p { font-size: 14px; }
 
     /* ─── TOAST ─── */
     #toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
+      position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 18px;
-      font-size: 13px;
-      transition: transform 0.3s ease;
-      z-index: 999;
-      white-space: nowrap;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 18px; font-size: 13px;
+      transition: transform 0.3s ease; z-index: 999; white-space: nowrap;
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
     #toast.error { border-color: var(--red); color: var(--red); }
@@ -486,161 +307,258 @@
 
 <header>
   <div class="logo">Price<span>Scan</span></div>
-  <select id="siteSelect">
-    <option value="MLA">🇦🇷 Argentina</option>
-    <option value="MLM">🇲🇽 México</option>
-    <option value="MCO">🇨🇴 Colombia</option>
-    <option value="MLC">🇨🇱 Chile</option>
-    <option value="MLB">🇧🇷 Brasil</option>
-    <option value="MPE">🇵🇪 Perú</option>
-    <option value="MLU">🇺🇾 Uruguay</option>
-  </select>
-</header>
-
-<main>
-
-  <!-- Scanner Card -->
-  <div class="scanner-card">
-    <div id="scanner-container">
-      <div id="reader"></div>
-
-      <!-- Overlay con guías visuales (solo cuando el scanner está activo) -->
-      <div class="scan-overlay" id="scanOverlay" style="display:none;">
-        <div class="scan-frame">
-          <div class="corner-bl"></div>
-          <div class="corner-br"></div>
-          <div class="scan-line"></div>
-        </div>
-      </div>
-
-      <!-- Estado idle -->
-      <div class="scanner-idle" id="scannerIdle" onclick="startScanner()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="7" width="18" height="10" rx="1"/>
-          <path d="M7 7V5a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v2"/>
-          <line x1="8" y1="11" x2="8" y2="13"/>
-          <line x1="10" y1="11" x2="10" y2="13"/>
-          <line x1="12" y1="11" x2="12" y2="13"/>
-          <line x1="14" y1="11" x2="14" y2="13"/>
-          <line x1="16" y1="11" x2="16" y2="13"/>
-        </svg>
-        <p>Tocá para activar la cámara</p>
-      </div>
-    </div>
-
-    <!-- Controles -->
-    <div class="scanner-controls">
-      <button class="btn btn-primary" id="btnScan" onclick="startScanner()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><line x1="11" y1="4" x2="11" y2="20"/><line x1="15" y1="12" x2="21" y2="12"/><line x1="15" y1="20" x2="21" y2="20"/></svg>
-        Escanear
-      </button>
-      <button class="btn btn-danger btn-sm" id="btnStop" onclick="stopScanner()" style="display:none;">
-        Detener
-      </button>
-    </div>
-
-    <!-- Info del producto detectado -->
-    <div id="barcodeInfo">
-      <div class="barcode-tag">
-        <span class="label">Código</span>
-        <span class="code" id="barcodeText">—</span>
-      </div>
-      <div class="product-preview" id="productPreview" style="display:none;">
-        <img id="productImg" src="" alt="" onerror="this.style.display='none'">
-        <div class="product-preview-info">
-          <div class="product-preview-name" id="productName"></div>
-          <div class="product-preview-brand" id="productBrand"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Búsqueda manual -->
-  <div class="search-row">
-    <input type="text" id="searchInput" placeholder="O buscá manualmente..."
-           onkeydown="if(event.key==='Enter') searchManual()">
-    <button class="btn btn-secondary" onclick="searchManual()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      Buscar
+  <div class="header-right">
+    <select id="siteSelect">
+      <option value="MLA">🇦🇷 Argentina</option>
+      <option value="MLM">🇲🇽 México</option>
+      <option value="MCO">🇨🇴 Colombia</option>
+      <option value="MLC">🇨🇱 Chile</option>
+      <option value="MLB">🇧🇷 Brasil</option>
+      <option value="MPE">🇵🇪 Perú</option>
+      <option value="MLU">🇺🇾 Uruguay</option>
+    </select>
+    <button class="auth-badge disconnected" id="authBadge" onclick="handleAuthClick()">
+      <div class="auth-dot"></div>
+      <span id="authLabel">Conectar</span>
     </button>
   </div>
+</header>
 
-  <!-- Loading -->
-  <div id="status">
-    <div class="spinner"></div>
-    <p id="statusText">Buscando precios...</p>
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-icon">🔍</div>
+  <div class="login-title">PriceScan</div>
+  <div class="login-subtitle">
+    Escaneá el código de barras de cualquier producto y encontrá el mejor precio en MercadoLibre al instante.
   </div>
+  <button class="btn-ml" onclick="loginML()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+    Conectar con MercadoLibre
+  </button>
+  <div class="login-note">Solo se usa para buscar precios públicos. No accedemos a tu cuenta.</div>
+</div>
 
-  <!-- Resultados -->
-  <div id="results">
-    <div class="results-header">
-      <div class="results-title">Resultados</div>
-      <div class="results-count" id="resultsCount"></div>
+<!-- APP SCREEN -->
+<div id="appScreen">
+  <main>
+    <!-- Scanner -->
+    <div class="scanner-card">
+      <div id="scanner-container">
+        <div id="reader"></div>
+        <div class="scan-overlay" id="scanOverlay">
+          <div class="scan-frame">
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+            <div class="scan-line"></div>
+          </div>
+        </div>
+        <div class="scanner-idle" id="scannerIdle" onclick="startScanner()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="7" width="18" height="10" rx="1"/>
+            <line x1="7" y1="11" x2="7" y2="13"/><line x1="10" y1="11" x2="10" y2="13"/>
+            <line x1="13" y1="11" x2="13" y2="13"/><line x1="16" y1="11" x2="16" y2="13"/>
+          </svg>
+          <p>Tocá para activar la cámara</p>
+        </div>
+      </div>
+      <div class="scanner-controls">
+        <button class="btn btn-primary" id="btnScan" onclick="startScanner()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><line x1="11" y1="4" x2="11" y2="20"/><line x1="15" y1="12" x2="21" y2="12"/><line x1="15" y1="20" x2="21" y2="20"/></svg>
+          Escanear
+        </button>
+        <button class="btn btn-danger btn-sm" id="btnStop" onclick="stopScanner()" style="display:none;">Detener</button>
+      </div>
+      <div id="barcodeInfo">
+        <div class="barcode-tag">
+          <span class="label">Código</span>
+          <span class="code" id="barcodeText">—</span>
+        </div>
+        <div class="product-preview" id="productPreview" style="display:none;">
+          <img id="productImg" src="" alt="" onerror="this.style.display='none'">
+          <div class="product-preview-info">
+            <div class="product-preview-name" id="productName"></div>
+            <div class="product-preview-brand" id="productBrand"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="results-query" id="resultsQuery"></div>
-    <div class="filter-bar" id="filterBar">
-      <div class="filter-chip active" onclick="setFilter('all', this)">Todos</div>
-      <div class="filter-chip" onclick="setFilter('new', this)">Nuevos</div>
-      <div class="filter-chip" onclick="setFilter('used', this)">Usados</div>
-      <div class="filter-chip" onclick="setFilter('free_ship', this)">Envío gratis</div>
-    </div>
-    <div class="product-list" id="productList"></div>
-  </div>
 
-</main>
+    <!-- Búsqueda manual -->
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="O buscá manualmente..."
+             onkeydown="if(event.key==='Enter') searchManual()">
+      <button class="btn btn-secondary" onclick="searchManual()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Buscar
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="status">
+      <div class="spinner"></div>
+      <p id="statusText">Buscando precios...</p>
+    </div>
+
+    <!-- Resultados -->
+    <div id="results">
+      <div class="results-header">
+        <div class="results-title">Resultados</div>
+        <div class="results-count" id="resultsCount"></div>
+      </div>
+      <div class="results-query" id="resultsQuery"></div>
+      <div class="filter-bar">
+        <div class="filter-chip active" onclick="setFilter('all', this)">Todos</div>
+        <div class="filter-chip" onclick="setFilter('new', this)">Nuevos</div>
+        <div class="filter-chip" onclick="setFilter('used', this)">Usados</div>
+        <div class="filter-chip" onclick="setFilter('free_ship', this)">Envío gratis</div>
+      </div>
+      <div class="product-list" id="productList"></div>
+    </div>
+  </main>
+</div>
 
 <div id="toast"></div>
 
 <script>
-  // ─── Estado global ───
-  let scanner = null;
-  let scannerActive = false;
-  let allResults = [];
-  let activeFilter = 'all';
-  let currentSite = 'MLA';
+  const WORKER = 'https://ml-proxy.walter-g-moorlag.workers.dev';
+  const ML_AUTH_URL = 'https://auth.mercadolibre.com.ar/authorization';
+  const CLIENT_ID   = '1924881729794376';
+  const REDIRECT    = 'https://waltergmoorlag.github.io/productPriceScan/';
+
+  // ─── Auth ───
+  let accessToken = null;
+
+  function loginML() {
+    const url = `${ML_AUTH_URL}?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT)}`;
+    window.location.href = url;
+  }
+
+  async function exchangeCode(code) {
+    const res = await fetch(`${WORKER}/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, grant_type: 'authorization_code' }),
+    });
+    return res.json();
+  }
+
+  async function refreshToken(refresh) {
+    const res = await fetch(`${WORKER}/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refresh, grant_type: 'refresh_token' }),
+    });
+    return res.json();
+  }
+
+  function saveTokens(data) {
+    const expiry = Date.now() + (data.expires_in - 300) * 1000; // 5 min de margen
+    localStorage.setItem('ml_access_token',  data.access_token);
+    localStorage.setItem('ml_refresh_token', data.refresh_token);
+    localStorage.setItem('ml_token_expiry',  expiry);
+  }
+
+  async function getValidToken() {
+    const expiry  = parseInt(localStorage.getItem('ml_token_expiry') || '0');
+    const refresh = localStorage.getItem('ml_refresh_token');
+    const stored  = localStorage.getItem('ml_access_token');
+
+    if (stored && Date.now() < expiry) return stored;
+
+    if (refresh) {
+      try {
+        const data = await refreshToken(refresh);
+        if (data.access_token) { saveTokens(data); return data.access_token; }
+      } catch(e) {}
+    }
+    return null;
+  }
+
+  function handleAuthClick() {
+    if (accessToken) {
+      // Desconectar
+      localStorage.removeItem('ml_access_token');
+      localStorage.removeItem('ml_refresh_token');
+      localStorage.removeItem('ml_token_expiry');
+      accessToken = null;
+      setAuthUI(false);
+      showToast('Sesión cerrada', '');
+    } else {
+      loginML();
+    }
+  }
+
+  function setAuthUI(connected) {
+    const badge = document.getElementById('authBadge');
+    const label = document.getElementById('authLabel');
+    badge.className = `auth-badge ${connected ? 'connected' : 'disconnected'}`;
+    label.textContent = connected ? 'Conectado' : 'Conectar';
+  }
+
+  async function init() {
+    // Limpiar código de OAuth del URL sin recargar
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+
+    if (code) {
+      history.replaceState({}, '', window.location.pathname);
+      showStatus('Conectando con MercadoLibre...');
+      try {
+        const data = await exchangeCode(code);
+        if (data.access_token) {
+          saveTokens(data);
+          accessToken = data.access_token;
+        }
+      } catch(e) {
+        showToast('Error al conectar. Intentá de nuevo.', 'error');
+      }
+      hideStatus();
+    }
+
+    accessToken = await getValidToken();
+    setAuthUI(!!accessToken);
+
+    if (accessToken) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appScreen').style.display = 'block';
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('appScreen').style.display = 'none';
+    }
+
+    document.getElementById('siteSelect').value = 'MLA';
+  }
 
   // ─── Site selector ───
-  document.getElementById('siteSelect').value = 'MLA';
-  document.getElementById('siteSelect').addEventListener('change', e => {
-    currentSite = e.target.value;
-  });
-  currentSite = document.getElementById('siteSelect').value;
+  let currentSite = 'MLA';
+  document.getElementById('siteSelect').addEventListener('change', e => { currentSite = e.target.value; });
 
-  // ─── Formateo de precios ───
+  // ─── Precios ───
   const currencyMap = {
-    MLA: { locale: 'es-AR', currency: 'ARS' },
-    MLM: { locale: 'es-MX', currency: 'MXN' },
-    MCO: { locale: 'es-CO', currency: 'COP' },
-    MLC: { locale: 'es-CL', currency: 'CLP' },
-    MLB: { locale: 'pt-BR', currency: 'BRL' },
-    MPE: { locale: 'es-PE', currency: 'PEN' },
-    MLU: { locale: 'es-UY', currency: 'UYU' },
+    MLA:{locale:'es-AR',currency:'ARS'}, MLM:{locale:'es-MX',currency:'MXN'},
+    MCO:{locale:'es-CO',currency:'COP'}, MLC:{locale:'es-CL',currency:'CLP'},
+    MLB:{locale:'pt-BR',currency:'BRL'}, MPE:{locale:'es-PE',currency:'PEN'},
+    MLU:{locale:'es-UY',currency:'UYU'},
   };
-
   function formatPrice(amount) {
     const cfg = currencyMap[currentSite] || currencyMap.MLA;
-    return new Intl.NumberFormat(cfg.locale, {
-      style: 'currency',
-      currency: cfg.currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+    return new Intl.NumberFormat(cfg.locale, { style:'currency', currency:cfg.currency, minimumFractionDigits:0, maximumFractionDigits:0 }).format(amount);
   }
 
   // ─── Toast ───
   let toastTimer;
-  function showToast(msg, type = '') {
+  function showToast(msg, type='') {
     const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'show ' + type;
+    t.textContent = msg; t.className = 'show ' + type;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.className = ''; }, 3000);
   }
 
   // ─── Scanner ───
+  let scanner = null, scannerActive = false;
+
   function startScanner() {
     if (scannerActive) return;
-
     document.getElementById('scannerIdle').style.display = 'none';
     document.getElementById('scanOverlay').style.display = 'flex';
     document.getElementById('btnScan').style.display = 'none';
@@ -650,26 +568,17 @@
     scanner.start(
       { facingMode: 'environment' },
       { fps: 10, qrbox: { width: 260, height: 120 } },
-      onBarcodeDetected,
-      () => {}
-    ).catch(err => {
-      console.error('Camera error:', err);
-      showToast('No se pudo acceder a la cámara', 'error');
-      resetScanner();
-    });
-
+      onBarcodeDetected, () => {}
+    ).catch(() => { showToast('No se pudo acceder a la cámara', 'error'); resetScanner(); });
     scannerActive = true;
   }
 
   function stopScanner() {
-    if (scanner && scannerActive) {
-      scanner.stop().then(() => resetScanner()).catch(() => resetScanner());
-    }
+    if (scanner && scannerActive) scanner.stop().then(resetScanner).catch(resetScanner);
   }
 
   function resetScanner() {
-    scannerActive = false;
-    scanner = null;
+    scannerActive = false; scanner = null;
     document.getElementById('scannerIdle').style.display = 'flex';
     document.getElementById('scanOverlay').style.display = 'none';
     document.getElementById('btnScan').style.display = 'inline-flex';
@@ -678,46 +587,32 @@
 
   async function onBarcodeDetected(code) {
     stopScanner();
-
-    // Vibrar si el navegador lo soporta
     if (navigator.vibrate) navigator.vibrate(60);
-
     document.getElementById('barcodeInfo').style.display = 'block';
     document.getElementById('barcodeText').textContent = code;
     document.getElementById('productPreview').style.display = 'none';
-
     showToast('Código detectado: ' + code, 'success');
     showStatus('Identificando producto...');
 
-    // Buscar en Open Food Facts (gran cobertura de supermercado)
     let searchQuery = code;
     try {
       const product = await lookupBarcode(code);
-      if (product && product.name) {
+      if (product?.name) {
         searchQuery = product.name + (product.brand ? ' ' + product.brand : '');
         showProductPreview(product);
       }
-    } catch (e) {
-      // Si falla OFF, buscar con el código directamente
-    }
+    } catch(e) {}
 
-    await searchML(searchQuery, code);
+    await doSearch(searchQuery, code);
   }
 
   // ─── Open Food Facts ───
   async function lookupBarcode(barcode) {
-    const res = await fetch(
-      `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`,
-      { signal: AbortSignal.timeout(5000) }
-    );
+    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`, { signal: AbortSignal.timeout(5000) });
     const data = await res.json();
     if (data.status !== 1) return null;
     const p = data.product;
-    return {
-      name: p.product_name_es || p.product_name || p.generic_name || null,
-      brand: p.brands || null,
-      image: p.image_front_small_url || p.image_small_url || null,
-    };
+    return { name: p.product_name_es || p.product_name || p.generic_name || null, brand: p.brands || null, image: p.image_front_small_url || p.image_small_url || null };
   }
 
   function showProductPreview(product) {
@@ -725,12 +620,8 @@
     document.getElementById('productName').textContent = product.name;
     document.getElementById('productBrand').textContent = product.brand || '';
     const img = document.getElementById('productImg');
-    if (product.image) {
-      img.src = product.image;
-      img.style.display = 'block';
-    } else {
-      img.style.display = 'none';
-    }
+    if (product.image) { img.src = product.image; img.style.display = 'block'; }
+    else { img.style.display = 'none'; }
     document.getElementById('productPreview').style.display = 'flex';
   }
 
@@ -740,38 +631,48 @@
     if (!query) return;
     document.getElementById('barcodeInfo').style.display = 'none';
     showStatus('Buscando precios...');
-    searchML(query);
+    doSearch(query);
   }
 
-  // ─── MercadoLibre API ───
-  async function searchML(query, fallbackBarcode = null) {
+  // ─── MercadoLibre ───
+  let allResults = [], activeFilter = 'all';
+
+  async function doSearch(query, fallbackBarcode = null) {
     showStatus('Buscando en MercadoLibre...');
 
+    // Refrescar token si es necesario
+    accessToken = await getValidToken();
+    if (!accessToken) {
+      hideStatus();
+      showToast('Sesión expirada. Volvé a conectar.', 'error');
+      setAuthUI(false);
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('appScreen').style.display = 'none';
+      return;
+    }
+
     try {
-      const url = `https://ml-proxy.walter-g-moorlag.workers.dev/?q=${encodeURIComponent(query)}&site=${currentSite}&limit=30`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-      const data = await res.json();
+      let results = await fetchML(query);
 
-      let results = data.results || [];
-
-      // Si no hay resultados con el nombre del producto y tenemos el código, buscar con el código
       if (results.length === 0 && fallbackBarcode && fallbackBarcode !== query) {
-        const res2 = await fetch(
-          `https://ml-proxy.walter-g-moorlag.workers.dev/?q=${encodeURIComponent(fallbackBarcode)}&site=${currentSite}&limit=30`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        const data2 = await res2.json();
-        results = data2.results || [];
-        query = fallbackBarcode;
+        results = await fetchML(fallbackBarcode);
+        if (results.length > 0) query = fallbackBarcode;
       }
 
       allResults = results.sort((a, b) => a.price - b.price);
       hideStatus();
       renderResults(query);
-    } catch (e) {
+    } catch(e) {
       hideStatus();
       showToast('Error al buscar. Revisá tu conexión.', 'error');
     }
+  }
+
+  async function fetchML(query) {
+    const url = `${WORKER}/?q=${encodeURIComponent(query)}&site=${currentSite}&limit=30&token=${encodeURIComponent(accessToken)}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    return data.results || [];
   }
 
   // ─── Filtros ───
@@ -795,46 +696,26 @@
     const filtered = getFilteredResults();
     const container = document.getElementById('results');
     const list = document.getElementById('productList');
-    const countEl = document.getElementById('resultsCount');
-    const queryEl = document.getElementById('resultsQuery');
 
     container.style.display = 'block';
-
     if (query !== null) {
-      queryEl.innerHTML = `Buscando: <span class="query-chip">${escapeHtml(query)}</span>`;
+      document.getElementById('resultsQuery').innerHTML = `Buscando: <span class="query-chip">${escapeHtml(query)}</span>`;
     }
-
-    countEl.textContent = `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''}`;
+    document.getElementById('resultsCount').textContent = `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''}`;
 
     if (filtered.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M8 12h8M12 8v8"/>
-          </svg>
-          <p>No se encontraron resultados.<br>Intentá buscar manualmente con otro término.</p>
-        </div>`;
+      list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><p>Sin resultados. Probá buscar manualmente con otro término.</p></div>`;
       return;
     }
 
     list.innerHTML = filtered.map((item, i) => {
       const isBest = i === 0;
       const imgHtml = item.thumbnail
-        ? `<img class="card-img" src="${item.thumbnail.replace('I.jpg','O.jpg')}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-img-placeholder><svg width=32 height=32 viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/></svg></div>'">`
-        : `<div class="card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/></svg></div>`;
-
-      const conditionBadge = item.condition === 'new'
-        ? '<span class="badge badge-new">NUEVO</span>'
-        : '<span class="badge badge-used">USADO</span>';
-
-      const freeShip = item.shipping?.free_shipping
-        ? '<span class="badge badge-free-ship">Envío gratis</span>'
-        : '';
-
-      const installments = item.installments
-        ? `<div class="card-price-sub">${item.installments.quantity}x ${formatPrice(item.installments.amount)}</div>`
-        : '';
+        ? `<img class="card-img" src="${item.thumbnail.replace('I.jpg','O.jpg')}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=card-img-placeholder></div>'">`
+        : `<div class="card-img-placeholder"></div>`;
+      const condBadge = item.condition === 'new' ? '<span class="badge badge-new">NUEVO</span>' : '<span class="badge badge-used">USADO</span>';
+      const freeShip = item.shipping?.free_shipping ? '<span class="badge badge-free-ship">Envío gratis</span>' : '';
+      const installments = item.installments ? `<div class="card-price-sub">${item.installments.quantity}x ${formatPrice(item.installments.amount)}</div>` : '';
 
       return `
         <a class="product-card ${isBest ? 'best-price' : ''}" href="${item.permalink}" target="_blank">
@@ -844,10 +725,7 @@
             <div class="card-title">${escapeHtml(item.title)}</div>
             <div class="card-price">${formatPrice(item.price)}</div>
             ${installments}
-            <div class="card-meta">
-              ${conditionBadge}
-              ${freeShip}
-            </div>
+            <div class="card-meta">${condBadge}${freeShip}</div>
           </div>
         </a>`;
     }).join('');
@@ -859,19 +737,16 @@
     document.getElementById('status').style.display = 'block';
     document.getElementById('results').style.display = 'none';
   }
-
-  function hideStatus() {
-    document.getElementById('status').style.display = 'none';
-  }
-
+  function hideStatus() { document.getElementById('status').style.display = 'none'; }
   function escapeHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // ─── Service Worker ───
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+
+  // ─── Arrancar ───
+  init();
 </script>
 
 </body>

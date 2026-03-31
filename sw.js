@@ -1,5 +1,5 @@
 const CACHE = 'pricescan-v1';
-const SHELL = ['.', './index.html', './manifest.json', './icon.svg'];
+const SHELL = ['.', './index.html', './manifest.json', './icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(

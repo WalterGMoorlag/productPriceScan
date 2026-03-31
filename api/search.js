@@ -49,5 +49,17 @@ export default async function handler(req, res) {
   }
 
   results.sort((a, b) => a.price - b.price);
+
+  if (req.query.debug) {
+    return res.json({
+      url: mlUrl,
+      htmlLength: html.length,
+      hasJsonLd: html.includes('ld+json'),
+      scriptsFound: [...html.matchAll(/<script[^>]*type="application\/ld\+json"/g)].length,
+      preview: html.substring(0, 300),
+      results,
+    });
+  }
+
   res.json({ results });
 }

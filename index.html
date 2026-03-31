@@ -748,7 +748,7 @@
     showStatus('Buscando en MercadoLibre...');
 
     try {
-      const url = `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(query)}&limit=30`;
+      const url = `https://ml-proxy.walter-g-moorlag.workers.dev/?q=${encodeURIComponent(query)}&site=${currentSite}&limit=30`;
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       const data = await res.json();
 
@@ -757,7 +757,7 @@
       // Si no hay resultados con el nombre del producto y tenemos el código, buscar con el código
       if (results.length === 0 && fallbackBarcode && fallbackBarcode !== query) {
         const res2 = await fetch(
-          `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(fallbackBarcode)}&limit=30`,
+          `https://ml-proxy.walter-g-moorlag.workers.dev/?q=${encodeURIComponent(fallbackBarcode)}&site=${currentSite}&limit=30`,
           { signal: AbortSignal.timeout(8000) }
         );
         const data2 = await res2.json();

@@ -1,0 +1,10 @@
+{
+  "name": "diffprices",
+  "version": "1.0.0",
+  "description": "Escaneá un código de barras y encontrá el mejor precio en MercadoLibre",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {}
+}

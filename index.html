@@ -439,8 +439,10 @@
     document.getElementById('searchRow').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
 
-    // Buscar en Open Food Facts
+    // Buscar producto — fallback chain
     let productName = null, brand = null, image = null;
+
+    // 1. Open Food Facts (alimentos)
     try {
       const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`,
         { signal: AbortSignal.timeout(5000) });
@@ -452,6 +454,66 @@
         image = p.image_front_small_url || p.image_small_url || null;
       }
     } catch(e) {}
+
+    // 2. Open Beauty Facts (cosmética/higiene)
+    if (!productName) {
+      try {
+        const res = await fetch(`https://world.openbeautyfacts.org/api/v0/product/${code}.json`,
+          { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        if (data.status === 1) {
+          const p = data.product;
+          productName = p.product_name_es || p.product_name || p.generic_name || null;
+          brand = p.brands || null;
+          image = p.image_front_small_url || p.image_small_url || null;
+        }
+      } catch(e) {}
+    }
+
+    // 3. Open Products Facts (limpieza, hogar, etc.)
+    if (!productName) {
+      try {
+        const res = await fetch(`https://world.openproductsfacts.org/api/v0/product/${code}.json`,
+          { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        if (data.status === 1) {
+          const p = data.product;
+          productName = p.product_name_es || p.product_name || p.generic_name || null;
+          brand = p.brands || null;
+          image = p.image_front_small_url || p.image_small_url || null;
+        }
+      } catch(e) {}
+    }
+
+    // 4. Open Pet Food Facts (mascotas)
+    if (!productName) {
+      try {
+        const res = await fetch(`https://world.openpetfoodfacts.org/api/v0/product/${code}.json`,
+          { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        if (data.status === 1) {
+          const p = data.product;
+          productName = p.product_name_es || p.product_name || p.generic_name || null;
+          brand = p.brands || null;
+          image = p.image_front_small_url || p.image_small_url || null;
+        }
+      } catch(e) {}
+    }
+
+    // 5. UPC Item DB (base general, 100 req/día gratis)
+    if (!productName) {
+      try {
+        const res = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`,
+          { signal: AbortSignal.timeout(5000) });
+        const data = await res.json();
+        if (data.code === 'OK' && data.items?.length > 0) {
+          const item = data.items[0];
+          productName = item.title || null;
+          brand = item.brand || null;
+          image = item.images?.[0] || null;
+        }
+      } catch(e) {}
+    }
 
     document.getElementById('loading').style.display = 'none';
     showResult(code, productName, brand, image);

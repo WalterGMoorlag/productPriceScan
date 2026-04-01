@@ -429,18 +429,27 @@
   document.getElementById('saveModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
   // ── Export / Import DB ──
-  function exportDB() {
+  async function exportDB() {
     const db = dbLoad();
     const count = Object.keys(db).length;
     if (count === 0) { toast('El diccionario está vacío'); return; }
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pricescan-${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast(`${count} productos exportados`, 'ok');
+    const json = JSON.stringify(db, null, 2);
+    const filename = `pricescan-${new Date().toISOString().slice(0,10)}.json`;
+    // En Android WebView usar Web Share API (abre panel de compartir)
+    if (navigator.canShare) {
+      try {
+        const file = new File([json], filename, { type: 'application/json' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'PriceScan DB' });
+          return;
+        }
+      } catch(e) { if (e.name === 'AbortError') return; }
+    }
+    // Fallback: copiar al portapapeles
+    try {
+      await navigator.clipboard.writeText(json);
+      toast(`JSON copiado al portapapeles (${count} productos)`, 'ok');
+    } catch { toast('No se pudo exportar'); }
   }
 
   function importDB() { document.getElementById('importFile').click(); }

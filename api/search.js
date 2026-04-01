@@ -50,5 +50,17 @@ export default async function handler(req, res) {
   }
 
   results.sort((a, b) => a.price - b.price);
+
+  if (req.query.debug) {
+    return res.json({
+      url: mlUrl,
+      httpStatus: response.status,
+      htmlLength: html.length,
+      hasJsonLd: html.includes('ld+json'),
+      preview: html.substring(0, 500),
+      results,
+    });
+  }
+
   res.json({ results });
 }

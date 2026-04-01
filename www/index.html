@@ -221,7 +221,7 @@
       </div>
     </div>
   </div>
-  <input type="file" id="importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
+  <input type="file" id="importFile" accept=".json,application/json,text/plain" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
 
   <!-- Inputs -->
   <div class="input-row">
@@ -448,11 +448,12 @@
   function handleImport(e) {
     const file = e.target.files[0];
     if (!file) return;
+    toast('Leyendo archivo...');
     const reader = new FileReader();
     reader.onload = ev => {
       try {
         const imported = JSON.parse(ev.target.result);
-        if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error();
+        if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error('formato inválido');
         const db = dbLoad();
         let count = 0;
         for (const [code, data] of Object.entries(imported)) {
@@ -461,11 +462,14 @@
         }
         localStorage.setItem(DB_KEY, JSON.stringify(db));
         toast(`${count} productos importados`, 'ok');
-      } catch { toast('Archivo inválido'); }
+      } catch(err) { toast('Archivo inválido: ' + err.message); }
       e.target.value = '';
     };
+    reader.onerror = () => toast('Error al leer el archivo');
     reader.readAsText(file);
   }
+
+  document.getElementById('importFile').addEventListener('change', handleImport);
 
   // ── ML Search (native HTTP via CapacitorHttp — no CORS) ──
   async function searchML(query) {

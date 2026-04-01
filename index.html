@@ -397,14 +397,37 @@
   // ── Init ──
   async function init() {
     const params = new URLSearchParams(window.location.search);
+
+    // Token recibido desde el redirect de GitHub Pages dentro del WebView
+    const ml_at = params.get('ml_at');
+    if (ml_at) {
+      localStorage.setItem('ml_at', ml_at);
+      localStorage.setItem('ml_rt', params.get('ml_rt') || '');
+      localStorage.setItem('ml_exp', params.get('ml_exp') || '0');
+      accessToken = ml_at;
+      history.replaceState({}, '', window.location.pathname);
+      setAuthUI(true);
+      return;
+    }
+
     const code = params.get('code');
     if (code) {
       history.replaceState({}, '', window.location.pathname);
       showLoading('Conectando con ML...');
       try {
         const data = await exchangeCode(code);
-        if (data.access_token) { saveTokens(data); accessToken = data.access_token; }
-      } catch(e) {}
+        if (data.access_token) {
+          saveTokens(data);
+          accessToken = data.access_token;
+          // Si estamos en GitHub Pages dentro del WebView del APK,
+          // redirigir el token de vuelta al app bundleado
+          if (window.Capacitor && window.location.hostname !== 'localhost') {
+            const exp = localStorage.getItem('ml_exp') || '0';
+            window.location.href = `capacitor://localhost/?ml_at=${encodeURIComponent(accessToken)}&ml_rt=${encodeURIComponent(data.refresh_token||'')}&ml_exp=${encodeURIComponent(exp)}`;
+            return;
+          }
+        }
+      } catch(e) { dbg('exchangeCode error: ' + e.message); }
       hideLoading();
     }
     accessToken = await getToken();

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0f172a"/>
+  <!-- Barcode bars -->
+  <rect x="96"  y="160" width="20" height="160" rx="4" fill="#22c55e"/>
+  <rect x="128" y="160" width="10" height="160" rx="4" fill="#22c55e"/>
+  <rect x="150" y="160" width="30" height="160" rx="4" fill="#22c55e"/>
+  <rect x="192" y="160" width="14" height="160" rx="4" fill="#22c55e"/>
+  <rect x="218" y="160" width="24" height="160" rx="4" fill="#22c55e"/>
+  <rect x="254" y="160" width="10" height="160" rx="4" fill="#22c55e"/>
+  <rect x="276" y="160" width="20" height="160" rx="4" fill="#22c55e"/>
+  <rect x="308" y="160" width="14" height="160" rx="4" fill="#22c55e"/>
+  <rect x="334" y="160" width="30" height="160" rx="4" fill="#22c55e"/>
+  <rect x="376" y="160" width="10" height="160" rx="4" fill="#22c55e"/>
+  <rect x="398" y="160" width="20" height="160" rx="4" fill="#22c55e"/>
+  <!-- Price label -->
+  <rect x="152" y="348" width="208" height="56" rx="10" fill="#22c55e"/>
+  <text x="256" y="387" font-family="Arial,sans-serif" font-size="36" font-weight="700" fill="#0f172a" text-anchor="middle">$$$</text>
+</svg>

@@ -254,6 +254,15 @@
 
 </main>
 
+<!-- Debug panel -->
+<div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1e1e2e;border-top:2px solid #f38ba8;padding:10px;font-family:monospace;font-size:11px;color:#cdd6f4;max-height:45vh;overflow-y:auto;z-index:9999;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+    <span style="color:#f38ba8;font-weight:bold;">DEBUG</span>
+    <button onclick="document.getElementById('debugPanel').style.display='none'" style="background:#313244;border:none;color:#cdd6f4;padding:2px 8px;border-radius:4px;cursor:pointer;">✕</button>
+  </div>
+  <pre id="debugLog" style="margin:0;white-space:pre-wrap;word-break:break-all;"></pre>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -345,9 +354,19 @@
     document.getElementById('loginBanner').style.display = connected ? 'none' : 'block';
   }
 
+  // ── Debug ──
+  function dbg(msg) {
+    const el = document.getElementById('debugLog');
+    const panel = document.getElementById('debugPanel');
+    el.textContent += '[' + new Date().toLocaleTimeString() + '] ' + msg + '\n';
+    panel.style.display = 'block';
+    panel.scrollTop = panel.scrollHeight;
+  }
+
   // ── ML Search (directo desde el browser con token de usuario) ──
   async function searchML(query) {
     accessToken = await getToken();
+    dbg('token: ' + (accessToken ? accessToken.substring(0,12) + '...' : 'NULL'));
     if (!accessToken) {
       setAuthUI(false);
       toast('Conectá ML primero para ver precios');
@@ -355,16 +374,29 @@
     }
 
     const url = `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(query)}&limit=20`;
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    });
-
-    if (res.status === 403) {
-      // Fallback: abrir ML en el browser
-      return null;
+    dbg('GET ' + url);
+    try {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      dbg('status: ' + res.status);
+      const text = await res.text();
+      dbg('body: ' + text.substring(0, 300));
+      if (res.status === 403 || res.status === 401) {
+        dbg('auth error — token inválido o expirado');
+        return null;
+      }
+      if (!res.ok) {
+        dbg('error HTTP ' + res.status);
+        return [];
+      }
+      const data = JSON.parse(text);
+      dbg('resultados: ' + (data.results?.length ?? 0));
+      return data.results || [];
+    } catch(e) {
+      dbg('EXCEPCIÓN: ' + e.message);
+      return [];
     }
-    const data = await res.json();
-    return data.results || [];
   }
 
   // ── Init ──

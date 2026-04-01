@@ -434,22 +434,13 @@
     const count = Object.keys(db).length;
     if (count === 0) { toast('El diccionario está vacío'); return; }
     const json = JSON.stringify(db, null, 2);
-    const filename = `pricescan-${new Date().toISOString().slice(0,10)}.json`;
-    // En Android WebView usar Web Share API (abre panel de compartir)
-    if (navigator.canShare) {
+    if (navigator.share) {
       try {
-        const file = new File([json], filename, { type: 'application/json' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'PriceScan DB' });
-          return;
-        }
+        await navigator.share({ title: 'PriceScan DB', text: json });
+        return;
       } catch(e) { if (e.name === 'AbortError') return; }
     }
-    // Fallback: copiar al portapapeles
-    try {
-      await navigator.clipboard.writeText(json);
-      toast(`JSON copiado al portapapeles (${count} productos)`, 'ok');
-    } catch { toast('No se pudo exportar'); }
+    toast('Compartir no disponible en este dispositivo');
   }
 
   function importDB() { document.getElementById('importFile').click(); }

@@ -152,6 +152,21 @@
     #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:9px 16px; font-size:13px; transition:transform .3s ease; z-index:999; white-space:nowrap; }
     #toast.show { transform:translateX(-50%) translateY(0); }
     #toast.ok   { border-color:var(--green); color:var(--green); }
+
+    /* SAVE MODAL */
+    #saveModal { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,.6); align-items:flex-end; justify-content:center; }
+    #saveModal.open { display:flex; }
+    .modal-sheet { background:var(--surface); border-radius:20px 20px 0 0; padding:20px 16px 32px; width:100%; max-width:600px; }
+    .modal-title { font-size:16px; font-weight:700; margin-bottom:4px; }
+    .modal-sub { font-size:12px; color:var(--muted); margin-bottom:16px; }
+    .modal-code { font-family:monospace; font-size:11px; color:var(--blue); }
+    .modal-fields { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .modal-fields input { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-size:14px; outline:none; }
+    .modal-fields input:focus { border-color:var(--green); }
+    .modal-fields input::placeholder { color:var(--muted); }
+    .modal-actions { display:flex; gap:8px; }
+    .modal-actions .btn { flex:1; justify-content:center; }
+    .ph-local-badge { display:inline-block; font-size:10px; font-weight:700; background:#1a2a4a; color:var(--blue); padding:2px 7px; border-radius:4px; margin-left:6px; vertical-align:middle; }
   </style>
 </head>
 <body>
@@ -234,12 +249,14 @@
       <div class="ph-name" id="phName"></div>
       <div class="ph-brand" id="phBrand"></div>
     </div>
-    <div id="phUnknown" class="ph-unknown" style="display:none;">Código no encontrado en ninguna base de datos.</div>
+    <div id="phUnknown" class="ph-unknown" style="display:none;">Código no encontrado.</div>
     <div class="ph-actions">
       <button class="btn btn-green btn-sm" onclick="startScanner()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
         Nuevo escaneo
       </button>
+      <button id="btnSaveProduct" class="btn btn-ghost btn-sm" style="display:none;" onclick="openModal()">+ Guardar</button>
+      <button id="btnEditProduct" class="btn btn-ghost btn-sm" style="display:none;" onclick="openModal(true)">✎ Editar</button>
     </div>
   </div>
 
@@ -253,6 +270,24 @@
   </div>
 
 </main>
+
+<!-- Save product modal -->
+<div id="saveModal">
+  <div class="modal-sheet">
+    <div class="modal-title">Guardar producto</div>
+    <div class="modal-sub">Código: <span class="modal-code" id="modalCode"></span></div>
+    <div class="modal-fields">
+      <input id="modalName"     type="text" placeholder="Nombre *" autocomplete="off">
+      <input id="modalBrand"    type="text" placeholder="Marca" autocomplete="off">
+      <input id="modalCategory" type="text" placeholder="Categoría (ej: yerba mate)" autocomplete="off">
+      <input id="modalQuantity" type="text" placeholder="Presentación (ej: 500g, 1L)" autocomplete="off">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-green" onclick="saveAndSearch()">Guardar y buscar</button>
+    </div>
+  </div>
+</div>
 
 <!-- Debug panel -->
 <div id="debugPanel" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1e1e2e;border-top:2px solid #f38ba8;padding:10px;font-family:monospace;font-size:11px;color:#cdd6f4;max-height:45vh;overflow-y:auto;z-index:9999;">
@@ -353,6 +388,57 @@
     document.getElementById('authLabel').textContent = connected ? 'ML conectado' : 'Conectar ML';
     document.getElementById('loginBanner').style.display = connected ? 'none' : 'block';
   }
+
+  // ── Local product DB ──
+  const DB_KEY = 'pricescan_db';
+  function dbLoad() { try { return JSON.parse(localStorage.getItem(DB_KEY) || '{}'); } catch { return {}; } }
+  function dbGet(code) { return dbLoad()[code] || null; }
+  function dbSave(code, data) { const db = dbLoad(); db[code] = { ...data, savedAt: new Date().toISOString().slice(0,10) }; localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+
+  let _modalCode = null;
+  function openModal(editing = false) {
+    _modalCode = document.getElementById('phCode').textContent.replace('Código: ','').trim();
+    document.getElementById('modalCode').textContent = _modalCode;
+    if (editing) {
+      const saved = dbGet(_modalCode);
+      document.getElementById('modalName').value     = saved?.name     || document.getElementById('phName').textContent;
+      document.getElementById('modalBrand').value    = saved?.brand    || '';
+      document.getElementById('modalCategory').value = saved?.category || '';
+      document.getElementById('modalQuantity').value = saved?.quantity || '';
+    } else {
+      document.getElementById('modalName').value     = '';
+      document.getElementById('modalBrand').value    = '';
+      document.getElementById('modalCategory').value = '';
+      document.getElementById('modalQuantity').value = '';
+    }
+    document.getElementById('saveModal').classList.add('open');
+    document.getElementById('modalName').focus();
+  }
+  function closeModal() { document.getElementById('saveModal').classList.remove('open'); }
+  async function saveAndSearch() {
+    const name = document.getElementById('modalName').value.trim();
+    if (!name) { document.getElementById('modalName').focus(); return; }
+    const data = {
+      name,
+      brand:    document.getElementById('modalBrand').value.trim()    || null,
+      category: document.getElementById('modalCategory').value.trim() || null,
+      quantity: document.getElementById('modalQuantity').value.trim() || null,
+    };
+    dbSave(_modalCode, data);
+    closeModal();
+    toast('Guardado', 'ok');
+    // Actualizar header y buscar
+    document.getElementById('phFound').style.display = 'block';
+    document.getElementById('phUnknown').style.display = 'none';
+    document.getElementById('phName').textContent = name;
+    document.getElementById('phBrand').textContent = [data.brand, data.category, data.quantity].filter(Boolean).join(' · ');
+    document.getElementById('btnSaveProduct').style.display = 'none';
+    document.getElementById('btnEditProduct').style.display = 'inline-flex';
+    const parts = [data.brand, name, data.category, data.quantity].filter(Boolean);
+    await fetchAndShowPrices(parts.join(' '));
+  }
+  // Cerrar modal tocando el fondo
+  document.getElementById('saveModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
   // ── Debug ──
   function dbg(msg) {
@@ -489,6 +575,24 @@
   // ── Barcode lookup chain ──
   async function processCode(code) {
     toast('Código: ' + code, 'ok');
+    document.getElementById('phCode').textContent = `Código: ${code}`;
+    document.getElementById('btnSaveProduct').style.display = 'none';
+    document.getElementById('btnEditProduct').style.display = 'none';
+
+    // 0. Buscar en DB local primero
+    const saved = dbGet(code);
+    if (saved) {
+      document.getElementById('phFound').style.display = 'block';
+      document.getElementById('phUnknown').style.display = 'none';
+      document.getElementById('phName').textContent = saved.name;
+      document.getElementById('phBrand').innerHTML = [saved.brand, saved.category, saved.quantity].filter(Boolean).join(' · ') + ' <span class="ph-local-badge">LOCAL</span>';
+      document.getElementById('productHeader').style.display = 'block';
+      document.getElementById('btnEditProduct').style.display = 'inline-flex';
+      const parts = [saved.brand, saved.name, saved.category, saved.quantity].filter(Boolean);
+      await fetchAndShowPrices(parts.join(' '));
+      return;
+    }
+
     showLoading('Identificando producto...');
 
     let name = null, brand = null, category = null, quantity = null;
@@ -551,6 +655,13 @@
       document.getElementById('phUnknown').style.display = 'block';
     }
     document.getElementById('productHeader').style.display = 'block';
+
+    // Mostrar botones según si se encontró o no
+    if (name) {
+      document.getElementById('btnEditProduct').style.display = 'inline-flex';
+    } else {
+      document.getElementById('btnSaveProduct').style.display = 'inline-flex';
+    }
 
     // Marca primero (como están listados en ML), luego nombre, luego categoría
     let query;

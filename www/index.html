@@ -491,34 +491,43 @@
     toast('Código: ' + code, 'ok');
     showLoading('Identificando producto...');
 
-    let name = null, brand = null;
+    let name = null, brand = null, category = null, quantity = null;
+
+    function parseOFF(p) {
+      name     = p.product_name_es || p.product_name || p.generic_name || null;
+      brand    = p.brands ? p.brands.split(',')[0].trim() : null;
+      category = p.categories_tags
+        ? p.categories_tags.filter(t => t.startsWith('es:') || !t.includes(':')).map(t => t.replace(/^es:/,'')).filter(t => !/^\d/.test(t))[0] || null
+        : null;
+      quantity = p.quantity || null;
+    }
 
     // 1. Open Food Facts
     try {
       const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`, { signal: AbortSignal.timeout(4000) });
       const d = await r.json();
-      if (d.status === 1) { name = d.product.product_name_es || d.product.product_name || d.product.generic_name || null; brand = d.product.brands || null; }
+      if (d.status === 1) parseOFF(d.product);
     } catch(e){}
 
     // 2. Open Beauty Facts
     if (!name) try {
       const r = await fetch(`https://world.openbeautyfacts.org/api/v0/product/${code}.json`, { signal: AbortSignal.timeout(4000) });
       const d = await r.json();
-      if (d.status === 1) { name = d.product.product_name_es || d.product.product_name || d.product.generic_name || null; brand = d.product.brands || null; }
+      if (d.status === 1) parseOFF(d.product);
     } catch(e){}
 
     // 3. Open Products Facts
     if (!name) try {
       const r = await fetch(`https://world.openproductsfacts.org/api/v0/product/${code}.json`, { signal: AbortSignal.timeout(4000) });
       const d = await r.json();
-      if (d.status === 1) { name = d.product.product_name_es || d.product.product_name || d.product.generic_name || null; brand = d.product.brands || null; }
+      if (d.status === 1) parseOFF(d.product);
     } catch(e){}
 
     // 4. Open Pet Food Facts
     if (!name) try {
       const r = await fetch(`https://world.openpetfoodfacts.org/api/v0/product/${code}.json`, { signal: AbortSignal.timeout(4000) });
       const d = await r.json();
-      if (d.status === 1) { name = d.product.product_name_es || d.product.product_name || d.product.generic_name || null; brand = d.product.brands || null; }
+      if (d.status === 1) parseOFF(d.product);
     } catch(e){}
 
     // 5. UPC Item DB
@@ -536,14 +545,23 @@
       document.getElementById('phFound').style.display = 'block';
       document.getElementById('phUnknown').style.display = 'none';
       document.getElementById('phName').textContent = name;
-      document.getElementById('phBrand').textContent = brand || '';
+      document.getElementById('phBrand').textContent = [brand, category, quantity].filter(Boolean).join(' · ');
     } else {
       document.getElementById('phFound').style.display = 'none';
       document.getElementById('phUnknown').style.display = 'block';
     }
     document.getElementById('productHeader').style.display = 'block';
 
-    const query = name ? `${name} ${brand||''}`.trim() : code;
+    // Marca primero (como están listados en ML), luego nombre, luego categoría
+    let query;
+    if (name) {
+      const parts = [brand, name, category].filter(Boolean);
+      // Evitar duplicados cuando brand ya está en name
+      query = parts.filter((p, i) => i === 0 || !parts[0].toLowerCase().includes(p.toLowerCase()) && !p.toLowerCase().includes(parts[0].toLowerCase())).join(' ').trim();
+    } else {
+      query = code;
+    }
+    dbg('query: ' + query);
     await fetchAndShowPrices(query);
   }
 

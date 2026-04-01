@@ -365,20 +365,10 @@
 
   // ── ML Search (directo desde el browser con token de usuario) ──
   async function searchML(query) {
-    accessToken = await getToken();
-    dbg('token: ' + (accessToken ? accessToken.substring(0,12) + '...' : 'NULL'));
-    if (!accessToken) {
-      setAuthUI(false);
-      toast('Conectá ML primero para ver precios');
-      return null;
-    }
-
     const url = `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(query)}&limit=20`;
     dbg('GET ' + url);
     try {
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const res = await fetch(url);
       const text = await res.text();
       dbg('status: ' + res.status + ' | body: ' + text.substring(0, 400));
       if (!res.ok) {

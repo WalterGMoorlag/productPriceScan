@@ -555,7 +555,7 @@
     // Marca primero (como están listados en ML), luego nombre, luego categoría
     let query;
     if (name) {
-      const parts = [brand, name, category].filter(Boolean);
+      const parts = [brand, name, category, quantity].filter(Boolean);
       // Evitar duplicados cuando brand ya está en name
       query = parts.filter((p, i) => i === 0 || !parts[0].toLowerCase().includes(p.toLowerCase()) && !p.toLowerCase().includes(parts[0].toLowerCase())).join(' ').trim();
     } else {

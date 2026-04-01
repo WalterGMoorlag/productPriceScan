@@ -9,5 +9,10 @@
       "*.mercadolibre.com",
       "waltergmoorlag.github.io"
     ]
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
   }
 }

@@ -363,21 +363,31 @@
     panel.scrollTop = panel.scrollHeight;
   }
 
-  // ── ML Search (via Vercel scraping proxy) ──
+  // ── ML Search (native HTTP via CapacitorHttp — no CORS) ──
   async function searchML(query) {
-    const url = `https://product-price-scan.vercel.app/api/search?q=${encodeURIComponent(query)}&site=${currentSite}`;
+    const DOMAINS = { MLA:'listado.mercadolibre.com.ar',MLM:'listado.mercadolibre.com.mx',MCO:'listado.mercadolibre.com.co',MLC:'listado.mercadolibre.cl',MLB:'lista.mercadolivre.com.br',MPE:'listado.mercadolibre.com.pe',MLU:'listado.mercadolibre.com.uy' };
+    const slug = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const url = `https://${DOMAINS[currentSite]||DOMAINS.MLA}/${slug}`;
     dbg('GET ' + url);
     try {
-      const res = await fetch(url);
-      const text = await res.text();
-      dbg('status: ' + res.status + ' | body: ' + text.substring(0, 400));
-      if (!res.ok) {
-        dbg('error HTTP ' + res.status);
-        return [];
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile Safari/537.36', 'Accept': 'text/html' } });
+      const html = await res.text();
+      dbg('status: ' + res.status + ' | len: ' + html.length + ' | jsonld: ' + html.includes('ld+json'));
+      const results = [];
+      const regex = /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g;
+      let m;
+      while ((m = regex.exec(html)) !== null) {
+        try {
+          const data = JSON.parse(m[1].trim());
+          for (const item of (data['@graph'] || [])) {
+            if (item['@type'] === 'Product' && item.offers?.price) {
+              results.push({ title: item.name, price: item.offers.price, permalink: item.offers.url, thumbnail: item.image || null, condition: 'new', shipping: { free_shipping: false } });
+            }
+          }
+        } catch {}
       }
-      const data = JSON.parse(text);
-      dbg('resultados: ' + (data.results?.length ?? 0));
-      return data.results || [];
+      dbg('resultados: ' + results.length);
+      return results;
     } catch(e) {
       dbg('EXCEPCIÓN: ' + e.message);
       return [];

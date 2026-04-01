@@ -2,7 +2,7 @@ var capacitorShare = (function (exports, core) {
     'use strict';
 
     const Share = core.registerPlugin('Share', {
-        web: () => Promise.resolve().then(function () { return web; }).then((m) => new m.ShareWeb()),
+        web: () => Promise.resolve().then(function () { return web; }).then(m => new m.ShareWeb()),
     });
 
     class ShareWeb extends core.WebPlugin {

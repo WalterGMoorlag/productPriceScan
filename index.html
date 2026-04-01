@@ -65,7 +65,8 @@
 
     /* SCANNER */
     .scanner-wrap { background: var(--surface); border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-    #scanner-container { position: relative; width: 100%; aspect-ratio: 4/3; background: #000; }
+    #scanner-container { position: relative; width: 100%; height: 140px; background: #000; transition: height 0.3s ease; }
+    #scanner-container.scanning { height: 52vw; }
     #reader { border: none !important; width: 100% !important; height: 100% !important; }
     #reader video { object-fit: cover; width: 100% !important; height: 100% !important; border-radius: 0 !important; }
     #reader img, #reader__dashboard, #reader__status_span, #reader__header_message, #reader__dashboard_section_swaplink { display: none !important; }
@@ -500,6 +501,7 @@
     document.getElementById('scannerIdle').style.display = 'none';
     document.getElementById('scanOverlay').style.display = 'flex';
     document.getElementById('btnScan').style.display = 'none';
+    document.getElementById('scanner-container').classList.add('scanning');
     document.getElementById('btnStop').style.display = 'inline-flex';
     document.getElementById('productHeader').style.display = 'none';
     document.getElementById('results').style.display = 'none';
@@ -519,6 +521,7 @@
 
   function resetScanner() {
     scannerActive = false; scanner = null;
+    document.getElementById('scanner-container').classList.remove('scanning');
     document.getElementById('scannerIdle').style.display = 'flex';
     document.getElementById('scanOverlay').style.display = 'none';
     document.getElementById('btnScan').style.display = 'inline-flex';

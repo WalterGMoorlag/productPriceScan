@@ -423,7 +423,7 @@
           // redirigir el token de vuelta al app bundleado
           if (window.Capacitor && window.location.hostname !== 'localhost') {
             const exp = localStorage.getItem('ml_exp') || '0';
-            window.location.href = `capacitor://localhost/?ml_at=${encodeURIComponent(accessToken)}&ml_rt=${encodeURIComponent(data.refresh_token||'')}&ml_exp=${encodeURIComponent(exp)}`;
+            window.location.href = `https://localhost/?ml_at=${encodeURIComponent(accessToken)}&ml_rt=${encodeURIComponent(data.refresh_token||'')}&ml_exp=${encodeURIComponent(exp)}`;
             return;
           }
         }

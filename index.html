@@ -11,6 +11,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="capacitor-core.js"></script>
+  <script src="filesystem-plugin.js"></script>
   <script src="share-plugin.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -466,14 +467,22 @@
     const count = Object.keys(db).length;
     if (count === 0) { toast('El diccionario está vacío'); return; }
     const json = JSON.stringify(db, null, 2);
+    const filename = `pricescan-${new Date().toISOString().slice(0,10)}.json`;
     try {
+      const { Filesystem } = capacitorFilesystem;
       const { Share } = capacitorShare;
+      const file = await Filesystem.writeFile({
+        path: filename,
+        data: json,
+        directory: 'CACHE',
+        encoding: 'utf8',
+      });
       await Share.share({
         title: 'PriceScan DB',
-        text: json,
+        files: [file.uri],
         dialogTitle: `Compartir diccionario (${count} productos)`,
       });
-    } catch(e) { if (e.name !== 'AbortError') toast('No se pudo compartir'); }
+    } catch(e) { if (e.name !== 'AbortError') toast('No se pudo compartir: ' + e.message); }
   }
 
   function importDB() { document.getElementById('importFile').click(); }

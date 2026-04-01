@@ -1,5 +1,12 @@
 {
   "appId": "com.waltermoorlag.pricescan",
   "appName": "PriceScan",
-  "webDir": "www"
+  "webDir": "www",
+  "server": {
+    "allowNavigation": [
+      "*.mercadolibre.com.ar",
+      "*.mercadolibre.com",
+      "waltergmoorlag.github.io"
+    ]
+  }
 }

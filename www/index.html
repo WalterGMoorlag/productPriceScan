@@ -679,7 +679,7 @@
       const freeShip = item.shipping?.free_shipping;
       const cond = item.condition === 'used' ? ' · Usado' : '';
       return `
-        <a class="price-row ${isBest?'best':''}" href="${item.permalink}" target="_blank">
+        <a class="price-row ${isBest?'best':''}" href="#" onclick="window.open('${item.permalink}','_system');return false;">
           <div class="pr-title">
             ${isBest ? '<span class="pr-best-badge">MEJOR PRECIO</span>' : ''}
             ${escHtml(item.title)}${cond}

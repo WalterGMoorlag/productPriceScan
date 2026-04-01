@@ -379,13 +379,8 @@
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
-      dbg('status: ' + res.status);
       const text = await res.text();
-      dbg('body: ' + text.substring(0, 300));
-      if (res.status === 403 || res.status === 401) {
-        dbg('auth error — token inválido o expirado');
-        return null;
-      }
+      dbg('status: ' + res.status + ' | body: ' + text.substring(0, 400));
       if (!res.ok) {
         dbg('error HTTP ' + res.status);
         return [];
@@ -538,11 +533,7 @@
     hideLoading();
 
     if (results === null) {
-      // 403 — fallback: abrir ML
-      const mlUrl = buildMLUrl(query);
-      if (confirm('No se pudo conectar a ML. ¿Abrirlo en el browser?')) {
-        window.open(mlUrl, '_blank');
-      }
+      toast('Error al conectar con ML — ver debug', 'error');
       return;
     }
 

@@ -520,23 +520,28 @@
   }
   document.getElementById('configModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfig(); });
 
-  // ── ML Search via REST API ──
+  // ── ML Search via HTML scraping (CapacitorHttp bypasses CORS) ──
   async function searchML(query) {
-    const url = `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(query)}&limit=50`;
+    const DOMAINS = { MLA:'listado.mercadolibre.com.ar',MLM:'listado.mercadolibre.com.mx',MCO:'listado.mercadolibre.com.co',MLC:'listado.mercadolibre.cl',MLB:'lista.mercadolivre.com.br',MPE:'listado.mercadolibre.com.pe',MLU:'listado.mercadolibre.com.uy' };
+    const slug = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const url = `https://${DOMAINS[currentSite]||DOMAINS.MLA}/${slug}`;
     try {
-      const res = await fetch(url);
-      const data = await res.json();
-      return (data.results || []).map(item => ({
-        id:             item.id,
-        title:          item.title,
-        price:          item.price,
-        original_price: item.original_price || null,
-        permalink:      item.permalink,
-        thumbnail:      item.thumbnail,
-        condition:      item.condition,
-        shipping:       item.shipping,
-        shippingCost:   null,
-      }));
+      const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/122.0.0.0 Mobile Safari/537.36', 'Accept': 'text/html' } });
+      const html = await res.text();
+      const results = [];
+      const regex = /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g;
+      let m;
+      while ((m = regex.exec(html)) !== null) {
+        try {
+          const data = JSON.parse(m[1].trim());
+          for (const item of (data['@graph'] || [])) {
+            if (item['@type'] === 'Product' && item.offers?.price) {
+              results.push({ id: null, title: item.name, price: item.offers.price, original_price: null, permalink: item.offers.url, thumbnail: item.image || null, condition: 'new', shipping: { free_shipping: false }, shippingCost: null });
+            }
+          }
+        } catch {}
+      }
+      return results;
     } catch { return []; }
   }
 
@@ -749,16 +754,6 @@
     document.getElementById('results').style.display = 'none';
 
     const results = await searchML(query);
-
-    const cp = loadConfig().cp;
-    if (cp && results.length) {
-      showLoading('Calculando envíos...');
-      const top10 = results.slice(0, 10);
-      const costs = await Promise.all(top10.map(item =>
-        item.shipping?.free_shipping ? Promise.resolve(0) : fetchShipping(item.id, cp)
-      ));
-      top10.forEach((item, i) => { item.shippingCost = costs[i]; });
-    }
 
     hideLoading();
     renderPrices(results);

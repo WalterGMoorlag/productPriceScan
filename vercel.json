@@ -1,4 +1,5 @@
 {
+  "outputDirectory": "www",
   "functions": {
     "api/search.js": {
       "regions": ["gru1"]

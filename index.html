@@ -373,7 +373,7 @@
       return null;
     }
 
-    const url = `https://api.mercadolibre.com/sites/${currentSite}/search?q=${encodeURIComponent(query)}&limit=20`;
+    const url = `https://product-price-scan.vercel.app/api/search?q=${encodeURIComponent(query)}&site=${currentSite}`;
     dbg('GET ' + url);
     try {
       const res = await fetch(url, {

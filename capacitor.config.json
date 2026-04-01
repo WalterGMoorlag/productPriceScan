@@ -3,6 +3,7 @@
   "appName": "PriceScan",
   "webDir": "www",
   "server": {
+    "androidScheme": "https",
     "allowNavigation": [
       "*.mercadolibre.com.ar",
       "*.mercadolibre.com",

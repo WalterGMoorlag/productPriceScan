@@ -9,6 +9,7 @@
   "dependencies": {
     "@capacitor/android": "^7.6.1",
     "@capacitor/cli": "^7.6.1",
-    "@capacitor/core": "^7.6.1"
+    "@capacitor/core": "^7.6.1",
+    "@capacitor/share": "^8.0.1"
   }
 }

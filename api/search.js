@@ -1,65 +1,20 @@
-const SITE_DOMAINS = {
-  MLA: 'listado.mercadolibre.com.ar',
-  MLM: 'listado.mercadolibre.com.mx',
-  MCO: 'listado.mercadolibre.com.co',
-  MLC: 'listado.mercadolibre.cl',
-  MLB: 'lista.mercadolivre.com.br',
-  MPE: 'listado.mercadolibre.com.pe',
-  MLU: 'listado.mercadolibre.com.uy',
-};
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { q, site = 'MLA' } = req.query;
   if (!q) return res.status(400).json({ error: 'q required' });
 
-  const domain = SITE_DOMAINS[site] || SITE_DOMAINS.MLA;
-  const slug   = q.toLowerCase().replace(/[^a-z0-9áéíóúüñ]+/gi, '-').replace(/^-|-$/g, '');
-  const mlUrl  = `https://${domain}/${slug}`;
+  const token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token) return res.status(401).json({ error: 'token required' });
 
-  const response = await fetch(mlUrl, {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.105 Mobile Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-      'Accept-Language': 'es-AR,es;q=0.9',
-    },
+  const mlUrl = `https://api.mercadolibre.com/sites/${site}/search?q=${encodeURIComponent(q)}&limit=20`;
+
+  const mlRes = await fetch(mlUrl, {
+    headers: { Authorization: `Bearer ${token}` },
   });
 
-  const html = await response.text();
-  const results = [];
-
-  for (const match of html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
-    try {
-      const data = JSON.parse(match[1].trim());
-      for (const item of (data['@graph'] || [])) {
-        if (item['@type'] === 'Product' && item.offers?.price) {
-          results.push({
-            title:     item.name,
-            price:     item.offers.price,
-            permalink: item.offers.url,
-            thumbnail: item.image || null,
-            condition: 'new',
-            shipping:  { free_shipping: false },
-          });
-        }
-      }
-    } catch {}
-  }
-
-  results.sort((a, b) => a.price - b.price);
-
-  if (req.query.debug) {
-    return res.json({
-      url: mlUrl,
-      htmlLength: html.length,
-      hasJsonLd: html.includes('ld+json'),
-      scriptsFound: [...html.matchAll(/<script[^>]*type="application\/ld\+json"/g)].length,
-      preview: html.substring(0, 300),
-      results,
-    });
-  }
-
-  res.json({ results });
+  const data = await mlRes.json();
+  res.status(mlRes.status).json(data);
 }

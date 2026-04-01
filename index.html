@@ -215,8 +215,13 @@
         Escanear
       </button>
       <button class="btn btn-red btn-sm" id="btnStop" onclick="stopScanner()" style="display:none;">Detener</button>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm" onclick="exportDB()" title="Exportar diccionario">↑ Exportar</button>
+        <button class="btn btn-ghost btn-sm" onclick="importDB()" title="Importar y mergear">↓ Importar</button>
+      </div>
     </div>
   </div>
+  <input type="file" id="importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
 
   <!-- Inputs -->
   <div class="input-row">
@@ -370,7 +375,6 @@
     const pill = document.getElementById('authPill');
     pill.className = `auth-pill ${connected ? 'on':'off'}`;
     document.getElementById('authLabel').textContent = connected ? 'ML conectado' : 'Conectar ML';
-    document.getElementById('loginBanner').style.display = connected ? 'none' : 'block';
   }
 
   // ── Local product DB ──
@@ -423,6 +427,45 @@
   }
   // Cerrar modal tocando el fondo
   document.getElementById('saveModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+  // ── Export / Import DB ──
+  function exportDB() {
+    const db = dbLoad();
+    const count = Object.keys(db).length;
+    if (count === 0) { toast('El diccionario está vacío'); return; }
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pricescan-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast(`${count} productos exportados`, 'ok');
+  }
+
+  function importDB() { document.getElementById('importFile').click(); }
+
+  function handleImport(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (typeof imported !== 'object' || Array.isArray(imported)) throw new Error();
+        const db = dbLoad();
+        let count = 0;
+        for (const [code, data] of Object.entries(imported)) {
+          db[code] = data;
+          count++;
+        }
+        localStorage.setItem(DB_KEY, JSON.stringify(db));
+        toast(`${count} productos importados`, 'ok');
+      } catch { toast('Archivo inválido'); }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  }
 
   // ── ML Search (native HTTP via CapacitorHttp — no CORS) ──
   async function searchML(query) {
@@ -632,20 +675,15 @@
     // Mostrar botones según si se encontró o no
     if (name) {
       document.getElementById('btnEditProduct').style.display = 'inline-flex';
+      // Marca primero (como están listados en ML), luego nombre, luego categoría
+      const parts = [brand, name, category, quantity].filter(Boolean);
+      const query = parts.filter((p, i) => i === 0 || !parts[0].toLowerCase().includes(p.toLowerCase()) && !p.toLowerCase().includes(parts[0].toLowerCase())).join(' ').trim();
+      await fetchAndShowPrices(query);
     } else {
       document.getElementById('btnSaveProduct').style.display = 'inline-flex';
+      // No hay datos — pedir al usuario que complete el producto antes de buscar
+      openModal();
     }
-
-    // Marca primero (como están listados en ML), luego nombre, luego categoría
-    let query;
-    if (name) {
-      const parts = [brand, name, category, quantity].filter(Boolean);
-      // Evitar duplicados cuando brand ya está en name
-      query = parts.filter((p, i) => i === 0 || !parts[0].toLowerCase().includes(p.toLowerCase()) && !p.toLowerCase().includes(parts[0].toLowerCase())).join(' ').trim();
-    } else {
-      query = code;
-    }
-    await fetchAndShowPrices(query);
   }
 
   // ── Fetch & render prices ──

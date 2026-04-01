@@ -1,5 +1,9 @@
 {
   "appId": "com.waltermoorlag.pricescan",
   "appName": "PriceScan",
-  "webDir": "www"
+  "webDir": "www",
+  "server": {
+    "url": "https://product-price-scan.vercel.app",
+    "cleartext": false
+  }
 }
